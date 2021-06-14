@@ -1,0 +1,283 @@
+import java.io.File;
+import java.util.Scanner;
+
+public class Pp {
+
+     
+        
+       public static void main(String[] args) {
+        
+       int p = 0, r = 0;
+       int maxMatrix[], allMatrix[] = null, avaMatrix[] = null  ;
+       int [][] need;
+       int [][] allocation; 
+       int [][] max ;
+        
+        
+        
+        try {
+            File F = new File("/Users/abeer/NetBeansProjects/JavaApplication134/src/javaapplication134/newfile");
+            Scanner input = new Scanner(F);
+        
+            Scanner in = new Scanner(System.in);
+            
+
+            p = input.nextInt();
+            System.out.println("There are " +p + " processes in the system.");
+            System.out.println();
+
+            r = input.nextInt();
+            System.out.println("There are "+r + " resources types.");
+            System.out.println();
+
+            //allocatiob
+            allMatrix = new int[p * r];
+            for (int i = 0; i < allMatrix.length; i++) {
+                allMatrix[i] = input.nextInt();
+            }
+            int c=0;
+            allocation =new int [p][r];
+            for(int i=0;i<p;i++){
+                for(int j=0; j<r;j++){
+                    allocation [i][j]= allMatrix[c];
+                    c++;
+                }
+            }
+            System.out.println("The Allocation Matrix is...");
+            print(allocation,r,p);
+            
+            //max
+          maxMatrix = new int[p * r];
+            for (int i = 0; i < maxMatrix.length; i++) {
+                maxMatrix[i] = input.nextInt();
+            }
+               int z=0;
+             max =new int [p][r];
+            for(int i=0;i<p;i++){
+                for(int j=0; j<r;j++){
+                    max [i][j]= maxMatrix[z];
+                    z++;
+                }
+            }
+             
+            System.out.println("\nThe Max Matrix is...");
+             print(max,r,p);
+           
+
+            //need
+         need =new int [p][r];
+        for(int i=0;i<p;i++){
+            for(int j=0;j<r;j++){
+                need[i][j]=max[i][j]-allocation[i][j];
+            }
+           
+        }
+           System.out.println("\nThe need Matrix is...");
+              print(need,r,p);
+
+
+
+            //available
+            System.out.println("\nThe Available Vector is...");
+                
+        int letter =65;
+        for(int i=0; i<r;i++){
+            System.out.print((char)letter +"  ");
+            letter++;
+        }System.out.println();
+            avaMatrix = new int[r];
+            for (int i = 0; i < avaMatrix.length; i++) {
+                avaMatrix[i] = input.nextInt();
+                 
+                System.out.print(avaMatrix[i]+"  ");
+            }
+            input.close();
+            
+            //safe or unsafe
+     boolean m=isSafe( need ,avaMatrix,allocation, p, r);
+     System.out.println();
+     if(m==false)
+     System.out.println("\nTHE SYSTEM IS IN UNSAFE STATE!");     
+     else{
+     System.out.println("\nTHE SYSTEM IS IN A SAFE STATE!");  
+     
+            //request
+     System.out.print("Is there any Request ? ");
+     int p1 = in.nextInt();
+     String a = in.next();
+     
+     int [] request = new int [r];
+     
+     for(int b=0;b<request.length;b++){
+         request[b]=in.nextInt();
+     }
+     
+    int aaa [] = request(p,p1,request,r,allocation,need ,avaMatrix);
+     
+    //available
+     System.out.println("\nThe Available Vector is...");
+                
+         letter =65;
+        for(int i=0; i<r;i++){
+            System.out.print((char)letter +"  ");
+            letter++;
+        }System.out.println();
+            
+            for (int i = 0; i < aaa.length; i++) {
+              
+                 
+                System.out.print(aaa[i]+"  ");
+     
+
+   }
+     }    
+        }
+        catch (Exception e) {
+           System.out.print("Exception "+e);
+
+        }
+   
+    }
+     public static int[] request (int pro, int p1, int [] request, int res ,int[][]allocation,int [][]need,int[]avaMatrix){
+  
+         
+         for(int i=0;i<res;i++){
+             if(request[i]<= need[p1][i] && i+1!=res )
+                 continue;
+             else if (request[i]<= need[p1][i] && i==res-1){
+                 
+                      for(int j=0;j<res;j++){
+                          
+                      if(request[j]<= avaMatrix[j] && j+1!=res )
+                       continue;
+                      else if (request[j]<= avaMatrix[j] && j==res-1){
+                       
+                             for(int h=0;h<res;h++){
+                           avaMatrix[h]=avaMatrix[h]-request[h];
+                           allocation[p1][h]=allocation[p1][h]+request[h];
+                           need[p1][h]= need[p1][h]- request[h];}
+                             
+                           boolean safe = isSafe(need ,avaMatrix,allocation, pro, res);
+                           if(safe== true)
+                           System.out.println("\nTHE REQUEST CAN BE GRANTED!");
+                           else
+                           System.out.println("\nTHE REQUEST CAN'T BE GRANTED!");
+
+                     }
+                     
+                     
+                      }
+           
+             }
+             else {
+                  System.out.println("\nTHE REQUEST CAN'T BE GRANTED!");
+                  break;
+             }
+         }
+        
+         
+         return avaMatrix;
+     }  
+       
+       
+       
+       
+    public static void print (int [][] array,int r,int p){
+         System.out.print("   ");
+        int letter =65;
+        for(int i=0; i<r;i++){
+            System.out.print((char)letter +"  ");
+            letter++;
+        }
+         System.out.println();
+        for(int i=0;i<p;i++){
+          
+             System.out.print(i+":");
+            for(int j=0;j<r;j++){
+                System.out.print(" "+array[i][j]+" ");
+            }
+              System.out.println();
+        }
+    }
+   
+ 
+
+
+
+public static boolean isSafe(int [][] need ,int []available,int [][]all, int pro,int res){
+
+
+boolean [] finsh =new boolean[pro];
+
+
+   int []work= new int [res]; 
+    for (int i = 0; i <res ; i++) 
+        work[i] = available[i]; 
+   
+   
+    
+    for(int i=0;i<pro;i++){
+        if(finsh[i]==false){
+                for(int j=0;j<res;j++)  {
+                if(need[i][j]<=work[j]&&j+1!=res)
+                  continue;
+                else if(need [i][j]<=work[j]&&j==res-1) {
+                 
+                  finsh [i]=true;
+                  for(int y=0;y<res;y++){
+                      work[y]=work[y]+all[i][y];
+                      }
+                                 }
+                else 
+                
+                    break;}
+        }
+        else
+            continue;
+                 
+              
+          }
+    //second loop
+    
+     for(int i=0;i<pro;i++){
+        if(finsh[i]==false){
+                for(int j=0;j<res;j++)  {
+                if(need[i][j]<=work[j]&&j+1!=res)
+                  continue;
+                else if(need [i][j]<=work[j]&&j==res-1) {
+                 
+                  finsh [i]=true;
+                  for(int y=0;y<res;y++)
+                      work[y]=work[y]+all[i][y];
+                                 }
+                else 
+                
+                    break;}
+        }
+        else
+            continue;
+                 
+              
+          }
+   
+        
+    
+    
+    
+   
+      
+    for(int r=0;r<finsh.length;r++){
+          
+        if(finsh[r]==false){
+            return false;
+        }
+    }
+    return true;
+    
+        }
+}
+
+
+
+
+
